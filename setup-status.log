@@ -105,3 +105,33 @@ Running generate... (Use --skip-generate to skip the generators)
 [LeadOS] admin account...
 {"ok":true,"user":{"id":"cmw0wovf200007bewfjs80f0f","email":"admin@leados.com","name":"Ezz Admin","role":"OWNER"},"workspaceId":"cmw0wovg100017bewt9z4x9rt"}
 [LeadOS] SETUP DONE: 2026-11-03T16:32:33Z
+[deploy/codespace 31cb6ca] [skip ci] codespace setup log
+ 1 file changed, 107 insertions(+)
+ create mode 100644 setup-status.log
+[LeadOS] setup started: 2026-11-03T16:48:34Z
+[LeadOS] 0/5 curl check...
+[LeadOS] 1/5 bun runtime...
+1.4.4
+[LeadOS] 2/5 dependencies...
+[0.11ms] ".env.local", ".env"
+bun install v1.4.4 (38afee6c8)
+
+Checked 935 installs across 991 packages (no changes) [544.00ms]
+[LeadOS] 3/5 environment...
+[LeadOS] 4/5 database (65 tables)...
+$ prisma db push --accept-data-loss
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": SQLite database "custom.db" at "file:/workspaces/LeadOS/db/custom.db"
+
+The database is already in sync with the Prisma schema.
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v6.19.2) to ./node_modules/@prisma/client in 860ms
+
+[LeadOS] 5/5 starting app...
+[LeadOS] server UP
+[LeadOS] admin account...
+{"error":"البريد مستخدم بالفعل"}
+[LeadOS] SETUP DONE: 2026-11-03T16:49:03Z
