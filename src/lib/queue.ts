@@ -464,6 +464,22 @@ export async function ingestDiscoveredItems(
       classification.score = Math.max(classification.score, 55)
       classification.reason = classification.reason || `معلن ممول ${((item.rawData as { advertiser?: string })?.advertiser ?? "").slice(0, 40)} — بيصرف إعلانات في نفس النيش`
     }
+    if (!classification.is_lead && itemPlatform === "FREELANCE" && intentSignal === "EXPLICIT_NEED") {
+      // مشروع منشور على مستقل/خمسات/بحر بطلب صريح = أعلى نية شراء ممكنة (ميزانية + موعد تسليم) —
+      // حكم AI الأضعف (فولباك ZAI) ميتخليش المشروع ده يضيع — نفس منطق الخرايط والأدلة
+      classification.is_lead = true
+      if (classification.intent === "NONE" || classification.intent === "LOW") classification.intent = "MEDIUM"
+      classification.score = Math.max(classification.score, 48)
+      classification.reason = classification.reason || "مشروع منشور على منصة عمل حر بطلب خدمة صريح — نية شراء مباشرة"
+    }
+    if (!classification.is_lead && itemPlatform === "MARKETPLACE" && /للبيع|بيع محل|بيع كافيه|بيع مطعم|بيع شركة/i.test(item.title ?? "")) {
+      // السوق (OLX/دوبيزل/هاتلا): «بياع الأصل» هدف صيد رسمي (PROJECT.md §3) — صاحب أصل تجاري
+      // بيصفّي أو بيغير نشاطه = بيدور على تسويق أقوى أو شريك. حكم AI بيتأرجح هنا → قاعدة ثابتة
+      classification.is_lead = true
+      if (classification.intent === "NONE") classification.intent = "LOW"
+      classification.score = Math.max(classification.score, 45)
+      classification.reason = classification.reason || "إعلان بيع أصل تجاري في السوق — صاحب بيزنس حقيقي (قائمة استهداف)"
+    }
     if (!classification.is_lead) continue
 
     // Dedup by business identity signals — name must match what we'd store (handle > title)

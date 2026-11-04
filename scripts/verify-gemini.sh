@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # LeadOS — التحقق من تكامل Gemini: سيرفر + فحص حالة المزودين + شات حي + تتبع سلسلة التراجل
 set -u
-cd /home/z/my-project
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 OUT=tool-results/gemini-verify.txt
 mkdir -p tool-results
 : > "$OUT"

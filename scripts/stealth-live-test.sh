@@ -1,6 +1,6 @@
 #!/bin/bash
 # LeadOS — اختبار حي شامل لستيلث Camoufox (أمر واحد ذاتي الكفاية)
-cd /home/z/my-project
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 mkdir -p tool-results download/stealth
 OUT=tool-results/stealth-test.txt
 : > "$OUT"

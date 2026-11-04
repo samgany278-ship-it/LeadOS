@@ -85,6 +85,10 @@ model Workspace {
   browserCheckpoints BrowserCheckpoint[]
   browserEvents      BrowserEvent[]
   jinaMetrics        JinaMetric[]
+  financeEntries     FinanceEntry[]
+  decisionCards      DecisionCard[]
+  siteDrafts         SiteDraft[]
+  postDrafts         PostDraft[]
 }
 
 // ═══ عقل المهارات — الإحصاء والتعلم (doc §3) ═══
@@ -1488,4 +1492,98 @@ model JinaMetric {
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, day])
+}
+
+/// Ezz Finance (سبك §31.1 المالية) — سجل مصروفات وإيرادات قابلة للتتبع (امتداد إضافي آمن)
+model FinanceEntry {
+  id          String    @id @default(cuid())
+  workspaceId String
+  kind        String    // COST | REVENUE
+  category    String    // AI_API | TOOL | HOSTING | ADS | DOMAIN | DEAL | SERVICE | OTHER
+  title       String
+  amount      Float
+  currency    String    @default("EGP")
+  dealId      String?   // ربط اختياري بصفقة (للإيراد)
+  leadId      String?   // ربط اختياري بليد (تكلفة اكتشاف/خدمة)
+  source      String?   // مصدر القيمة — من أين جت (فاتورة/استحقاق/تقدير)
+  confidence  String    @default("RECORDED") // RECORDED (موثق) | ESTIMATED (تقدير) — فصل الحقيقة عن التقدير حسب §31.2
+  metadata    Json?
+  occurredAt  DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, kind, occurredAt])
+  @@index([workspaceId, category])
+}
+
+/// Ezz Decision Lab (سبك §28.4) — بطاقة قرار علمية: أدلة + بدائل + تكلفة/مخاطر + قياس مقابل خط أساس
+model DecisionCard {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  goal          String    // الهدف ومقياس النجاح
+  successMetric String?   // المقياس الكمي المتبع
+  baseline      Json?     // خط الأساس قبل القرار
+  options       Json      // البدائل: [{ name, cost, benefit, risk, confidence }]
+  evidence      Json      // الأدلة المؤرخة: [{ source, url?, date, kind: OBSERVED|ESTIMATE|HYPOTHESIS }]
+  unknowns      Json?     // ما لا نعرفه بوضوح
+  chosenOption  String?   // اسم البديل المختار عند القرار
+  status        String    @default("PROPOSED") // PROPOSED | IN_REVIEW | DECIDED | MEASURED | RETIRED
+  uncertainty   Json?     // درجة عدم اليقين والملاحظات
+  measuredOutcome Json?   // النتيجة الفعلية مقابل خط الأساس
+  reviewAt      DateTime? // موعد مراجعة القرار
+  decidedAt     DateTime?
+  decidedBy     String?
+  approvalRequired Boolean @default(false) // قرارات عالية المخاطر تحتاج موافقة المالك (§32)
+  metadata      Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status, updatedAt])
+}
+
+/// Ezz Web — Demo Factory (سبك §37 سياسة المواقع) — نموذج تجريبي محلي: بلا فهرسة + شارة تجريبية + قابل للحذف
+model SiteDraft {
+  id          String    @id @default(cuid())
+  workspaceId String
+  businessId  String?   // ربط اختياري ببيزنس مؤهل من CRM
+  name        String
+  template    String    // cafe | clinic | gym | agency | realestate
+  locale      String    @default("ar")
+  data        Json      // بيانات مؤكدة فقط: { title, tagline, services[], phone?, address? }
+  html        String    // HTML الكامل مع noindex + شارة «نموذج تجريبي»
+  checks      Json      // نتائج فحص القبول: viewport/links/noindex/placeholder/mobile
+  score       Int       @default(0) // عدد الفحوص الماجحة من إجماليها
+  status      String    @default("PREVIEW") // PREVIEW (محلي فقط) | ARCHIVED — النشر الحقيقي محجوب استضافة (BLK-011)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status, createdAt])
+}
+
+/// Ezz Social & Publish (سبك §30) — مسودات جاهزة للنشر اليدوي — ممنوع النشر التلقائي بلا تفويض رسمي
+model PostDraft {
+  id          String    @id @default(cuid())
+  workspaceId String
+  platform    String    // FACEBOOK | INSTAGRAM | LINKEDIN | X | TELEGRAM | WHATSAPP
+  accountId   String?   // PlatformAccount مصرح به إن وجد
+  content     String
+  mediaKind   String    @default("TEXT") // TEXT | IMAGE | VIDEO
+  policyChecks Json     // نتيجة فحص السياسات: ساعات النشر/الحد اليومي/التكرار
+  status      String    @default("DRAFT") // DRAFT | APPROVED | PUBLISHED_MANUAL | PUBLISHED_API | DISCARDED
+  scheduledAt DateTime?
+  publishedRef String?  // رابط/معرف المنشور بعد النشر الفعلي (يدوي أو API)
+  publishedAt DateTime?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, platform, status])
 }

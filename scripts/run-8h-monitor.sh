@@ -3,7 +3,7 @@
 # عينة كل 30 دقيقة (16 عينة): الخادم، الليدز، الاكتشاف، AI، النبضة، الأخطاء، أرقام لوحة التحكم الحية
 # بعد 8 ساعات يكتب "التقرير النهائي" في نفس اللوج
 # التشغيل: (setsid bash scripts/run-8h-monitor.sh > /dev/null 2>&1 &)
-cd /home/z/my-project || exit 1
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 LOG="logs/8h-monitor.log"
 ERRMARK="logs/.8h-err-line"
 COOKIE="/tmp/leados-cookies.txt"

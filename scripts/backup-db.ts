@@ -13,7 +13,7 @@ import { Database } from "bun:sqlite"
 import { mkdirSync, readdirSync, statSync, unlinkSync, copyFileSync, existsSync, writeFileSync } from "fs"
 import { join } from "path"
 
-const ROOT = "/home/z/my-project"
+const ROOT = join(import.meta.dir, "..")
 const DB_PATH = join(ROOT, "db/custom.db")
 const BACKUP_DIR = join(ROOT, "db/backups")
 const MARKER = join(BACKUP_DIR, ".last-backup")

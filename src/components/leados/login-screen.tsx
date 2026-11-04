@@ -70,7 +70,7 @@ export function LoginScreen({ onAuthed }: LoginScreenProps) {
               <Crosshair className="h-7 w-7 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-extrabold tracking-tight">LeadOS</h1>
+              <h1 className="text-2xl font-extrabold tracking-tight">Ezz</h1>
               <p className="text-xs text-muted-foreground">منصة ذكاء العملاء المحتملين</p>
             </div>
           </div>
@@ -99,7 +99,7 @@ export function LoginScreen({ onAuthed }: LoginScreenProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Crosshair className="h-5 w-5 text-primary" />
-              أهلاً بك في LeadOS
+              أهلاً بك في Ezz
             </CardTitle>
             <CardDescription>سجّل الدخول للمتابعة أو أنشئ حسابًا جديدًا</CardDescription>
           </CardHeader>

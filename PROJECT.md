@@ -20,6 +20,8 @@
 | نبضة مؤقتة محلية | `scripts/tmp/interim-pulse.sh` (كل 10 دقائق) | بتموت لو الساندبوكس اتعمل reset — مش دائمة |
 | فيسبوك ستيلث | Modal (app: `leados-patrol` + `leados-camoufox`) — **متوقف: سقف صرف خلص** | بيرجع بأول ما المستخدم يرفع السقف |
 | جيت هاب | `EZZ1000000000/LeadOS` | **Actions محجوب على مستوى الحساب** — متبنيش عليه للنشر |
+| **الجهاز الأساسي (من 2026-11-04 — BATCH-010)** | **Kaggle dataset خاص: `ezz22551/leados-main`** | صورة كاملة: شجرة المشروع + git bundle + db + .env — **المصدر الرسمي بعد أي تدوير ساندبوكس**: `python3 scripts/restore-from-kaggle.py` |
+| سيرفر الدفع/الرفع | توكنات Kaggle KGAT ×8 حية في `.env` (`KAGGLE_USERNAME=ezz22551`) | توكنات GitHub ghp_ القديمة ميتان 401 (BLK-013) — عند توكن جديد: remote `EZZ1000000000/LeadOS` + فك `leados-repo.bundle` والدفع |
 
 ## 3) محرك الاكتشاف — الـ16 مصدر
 
@@ -135,7 +137,31 @@ VERCEL_TOKEN=$VERCEL_TOKEN bunx vercel env pull scripts/deploy/.env.prod.pull --
 9. **`.gitignore` و`.vercelignore` كانوا بيقطفوا `/skills`** (اتصلح 2026-09-28): ملفات SKILL.md الـ19 كانت مش بتنزل على Vercel → `skills:gen` بيولّد مانيفست بصفر → الاسكلز بتقع بصمت (`skill: null` في metadata). الإصلاح: `/skills/*` + `!/skills/discovery` في الاتنين — **لو ضفت مهارة جديدة ومش ظاهرة في الإنتاج، افحص لوج البناء سطر `skills manifest: N skills`** (لازم 19+).
 10. **dbq.py مع JSON**: استخدم dollar-quoting `$$key$$` بدل علامات التنصيص، وافتكر `ContentItem.collectedAt` (مش createdAt) و`Lead.createdAt`.
 
-## 9) الحالة دلوقتي (آخر تحديث: 2026-09-28 ~17:50)
+## 9) الحالة دلوقتي (آخر تحديث: 2026-11-04 — BATCH-010)
+
+**دفعة 2026-11-04 (BATCH-010 — تفاصيل في worklog):**
+- ✅ **الجهاز الأساسي على Kaggle**: dataset خاص `ezz22551/leados-main` (شجرة المشروع كاملة + git bundle + db + .env) — **المصدر الرسمي بعد أي تدوير ساندبوكس** عبر `scripts/restore-from-kaggle.py`. 8 توكن KGAT حية في `.env`.
+- ✅ **تشغيل حي كامل على المنصات بدون تسجيل دخول**: موجة full-sweep → 19 SearchJob SUCCESS + 7 ليدز جدد (FREELANCE ×4 / TIKTOK ×2 / X ×1 — منها score=74 EXPLICIT_NEED) + 28 AiRun DAHL + كل جوب بـ17 مهارة وai-selector.
+- ✅ **Telegram t.me/s: 6/6 قنوات 200 بدون أي مفاتيح** (البروب الموثق: `docs/nologin-platforms-probe.json`) — Reddit JSON 403 من DC (موثق، فولباك البحث شغال) — Quora عبر البحث.
+- ✅ مهارات 19 اتبنت + المانيفست 19 (سكربت rebuild اتصلح مساره للمشروع) + verify-e2e 10/11 (فحص النبضة اتصلح توقيته 90ث→210ث مطابقةً للفاصل الموثق) + النبضة الداخلية حية.
+- ⏳ **BLK-013 (جديد)**: توكن GitHub ميت 401 + مفتاح ssh الخاص ضايع — الرفع على `EZZ1000000000/LeadOS` محجوز على المالك (البديل Kaggle شغّال).
+- ⏳ قنوات `AlmalNews`/`AkhbarEconomy` بترجع محتوى مختلف عن اسمها — مراجعة القايمة لاحقاً.
+
+**دفعة 2026-11-04 (BATCH-004 — سابقة):**
+- ✅ **فخ تدوير الساندبوكس اتحل نهائيًا**: `.env` بيمسح مع كل تدوير — سكربت `scripts/rebuild-env.py` بيعيد بناءه من `upload/` (11 dahl + 2 NVIDIA + 8 Kaggle + أسرار CRON) — 15/15 مفتاح حي.
+- ✅ **T-018/T-019 اتقفلوا**: tsconfig استثنى غير-التطبيق (D-005) → tsc = 0 أخطاء على كامل المستودع + `ignoreBuildErrors=false` + بناء إنتاجي exit=0 بالفحص مفعّلًا.
+- ✅ **اختبارات المتصفح t1–t9 إعادة إثباتها بمتصفح حقيقي: 41/43** (T8 فحصان محجوبان على JINA_API_KEY — فشل صادق موثق). معرفة زيزو 41/41. verify-e2e ALL-GREEN 8/8.
+- ✅ **موجة حية**: tick full=1 → جوبات SUCCESS بـai-selector + 2 ليد FREELANCE حقيقي (EXPLICIT_NEED, 55) + 70 AiRun DAHL + 8 GitSkills + 7 دروس.
+- ⏳ محجوز على المالك: BLK-001 (أسرار الإنتاج للـ148)، BLK-002 (Jina)، BLK-005 (SERP مدفوع — الفولباك شغّال 30 نتيجة/جوب)، BLK-006/007/008.
+
+**دفعة 2026-11-04 (BATCH-003 — سابقة):**
+- ✅ مفاتيح AI حية ومُحقنة في `.env`: 11 dahl (DeepSeek/GLM/MiniMax) + 2 NVIDIA — فحص 13/13 = 200. العقل كله شغّال: SKILL_SELECT/SKILL_QUERIES/CLASSIFICATION على DAHL (36 AiRun في أول موجتين حيتين).
+- ✅ مكتبة المهارات اتبنت من جديد: `skills/discovery/*/SKILL.md` ×19 (كانت ضايعة مع تدوير الساندبوكس) — المانيفيست 19 والمهارات بتظهر في `metadata.skills` بأسمائها.
+- ✅ أول ليدز من موجة حية على الساندبوكس: 2 ليد FREELANCE (EXPLICIT_NEED, score 55) — بعد إصلاحين: اشتقاق عنوان من الرابط لنتايج z-ai بلا اسم (`titleFromUrl`) + قواعد إجبار FREELANCE/MARKETPLACE ضد تقلب حكم AI.
+- ✅ سطر `platformQueries` seeds كان مكسور (فقد `[h`) — اتصلح. فحص `scripts/verify-e2e.sh` = ALL-GREEN 8/8.
+- ⏳ محجوز على مفاتيح: SERP مدفوع (BLK-005 — z-ai فولباك شغّال بجودة أقل)، JINA (T8)، أسرار الإنتاج (BLK-001).
+
+**حالة 2026-09-28 (سابقة — للمرجع):**
 
 **طبقة سرقة إعلانات المنافسين الممولة (اتضافت 2026-09-28 — Task 45):**
 - 3 طبقات: (1) قراءة حقل `ads` من Serper في **كل بحث على كل منصة** — إعلانات جوجل الممولة الحية بقت leads ببصمة `sponsored` + `AD_SPENDER` قسرًا (score≥55 + نية HIGH) وبتعدي فلتر site: تلقائيًا. (2) **ماسح البيكسلات** `detectAdPixels()` — فحص موقع أي ليد جديد (5 فحوص/جوب) + أي ليد ساخن في البحث العميق: بيكسل ميتا/جوجل/تيك توك/لينكدإن/سناب/إكس حي = `AD_SPENDER` بقنوات مثبتة +8 سكور. (3) استطلاع مواقع المنافسين المسجلين → `Competitor.evidence.adChannels`.

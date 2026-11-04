@@ -3,7 +3,7 @@
 #   1) نبضة أوركستراتور كل 10 دقائق
 #   2) نشر تلقائي على Vercel عند وصول كوميت جديد إلى origin/main
 # يقرأ كل الأسرار من ملف واحد: .env.keys
-cd /home/z/my-project || exit 1
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 set -a; source .env.keys; set +a
 BASE="$DASHBOARD_URL"
 while true; do

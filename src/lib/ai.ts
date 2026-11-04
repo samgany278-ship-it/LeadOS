@@ -291,7 +291,8 @@ export function chainFor(task: AiTask): string[] {
 // تبريد المودلات: 429 → دقيقة، 404/5xx → 10 دقايق، شبكة → 15 ثانية
 const cooldownUntil = new Map<string, number>()
 function noteFailure(model: string, status: number): void {
-  const ms = status === 429 ? 60_000 : status === 404 || status >= 500 ? 600_000 : 15_000
+  // 410 = الموديل خلص عمره نهائيًا (EOL) — تبريد طويل زي 404 عشان مايتجربش كل ربع ساعة
+  const ms = status === 429 ? 60_000 : status === 404 || status === 410 || status >= 500 ? 600_000 : 15_000
   cooldownUntil.set(model, Date.now() + ms)
 }
 

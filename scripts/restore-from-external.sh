@@ -2,7 +2,7 @@
 # LeadOS — استعادة كارثة سريعة: يرجّع آخر باك أب خارجي حي (فيه ليدز)
 # الاستخدام: bash scripts/restore-from-external.sh [ملف-اختياري.db]
 SAFE_DIR="/home/z/leados-backups"
-cd /home/z/my-project || exit 1
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 
 SRC="${1}"
 if [ -z "$SRC" ]; then

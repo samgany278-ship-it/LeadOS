@@ -59,6 +59,10 @@ export function pacingDelayMs(policy: PlatformPolicy): number {
 
 /** هل الوقت الحالي داخل ساعات النشاط المسموحة للمنصة (بحسب توقيت المنصة) */
 export function withinActiveHours(policy: PlatformPolicy, now = new Date()): boolean {
+  // Override موثق (طلب المالك 2026-11-04: «ابدأ دلوقتي بكل المنصات» — إثبات تشغيل فوري):
+  // LEADOS_ACTIVE_HOURS_247=1 يسمح بالتشغيل 24/7 مؤقتًا — يُلغى بحذف المتغير من .env.local
+  // والعودة لساعات السياسة (8-24 مصر). الحمايات الأخرى (pacing/backoff/capacity) كما هي بلا أي تخفيف.
+  if (process.env.LEADOS_ACTIVE_HOURS_247 === "1") return true
   try {
     const { start, end, tz } = policy.activeHours
     const hour = Number(new Intl.DateTimeFormat("en-GB", { hour: "2-digit", hour12: false, timeZone: tz }).format(now))

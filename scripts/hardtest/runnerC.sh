@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /home/z/my-project
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 node scripts/hardtest/p2a-farm-ingest.mjs
 node scripts/hardtest/p2b-groups.mjs
 node scripts/hardtest/p2c-adslib.mjs

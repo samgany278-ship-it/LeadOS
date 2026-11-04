@@ -3,7 +3,7 @@
 # Facebook Ads Library (EG) — anonymous real Chromium — advertisers -> AD_SPENDER leads.
 # (GitHub Actions copy lives in .github/workflows/ads-library.yml — activates when
 #  the GitHub account blocker is lifted; this local loop runs meanwhile.)
-cd /home/z/my-project || exit 1
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 mkdir -p db/backups
 export LEADOS_BASE_URL="https://leados-v2.vercel.app"
 export LEADOS_API_KEY=$(grep '^INGEST_API_KEY=' scripts/deploy/.tokens | cut -d= -f2- | tr -d '"')

@@ -2,7 +2,7 @@
 # LeadOS — مشرف الإنتاج ذاتي الإصلاح
 # بيفحص كل 60 ثانية: الخادم + النبضة + الباك أب — وأي خدمة تقع بيرجعها فوراً
 # التشغيل: (setsid bash scripts/prod-supervisor.sh > /dev/null 2>&1 &)
-cd /home/z/my-project || exit 1
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 mkdir -p db/backups logs
 
 log() { echo "$(date '+%H:%M:%S') $1" >> logs/supervisor.log; }

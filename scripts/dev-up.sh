@@ -10,7 +10,7 @@ if curl -s -m 4 -o /dev/null "$URL"; then
 fi
 
 echo "[dev-up] السيرفر مش شغال — بيشغّل..."
-cd /home/z/my-project || exit 1
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 NODE_OPTIONS="--max-old-space-size=1024" nohup bun run dev > /tmp/leados-dev.log 2>&1 &
 disown 2>/dev/null || true
 

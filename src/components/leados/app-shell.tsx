@@ -21,12 +21,17 @@ import { BrowserControlView } from "./views/browser-control"
 import { ZizoView } from "./views/zizo"
 import { AnalyticsView } from "./views/analytics"
 import { TasksView } from "./views/tasks"
+import { FinanceView } from "./views/finance"
+import { DecisionLabView } from "./views/decision-lab"
+import { WebStudioView } from "./views/web-studio"
+import { SocialView } from "./views/social"
 import { SettingsView } from "./views/settings"
 import { GroupsView } from "./views/groups"
 import {
   LayoutDashboard, Radar, Users, KanbanSquare, FlaskConical, Database,
   SlidersHorizontal, Bot, BarChart3, CheckSquare, Settings, LogOut,
   Crosshair, Bell, RefreshCw, MessageSquareDot, Coffee, Megaphone, BrainCircuit, MessagesSquare, Repeat, Monitor,
+  Wallet, Scale, Globe, Share2,
 } from "lucide-react"
 
 const NAV: Array<{ key: ViewKey; label: string; icon: React.ComponentType<{ className?: string }> }> = [
@@ -45,6 +50,10 @@ const NAV: Array<{ key: ViewKey; label: string; icon: React.ComponentType<{ clas
   { key: "browsers", label: "مركز المتصفحات", icon: Monitor },
   { key: "zizo", label: "زيزو — كيان البيع", icon: MessagesSquare },
   { key: "analytics", label: "التحليلات", icon: BarChart3 },
+  { key: "finance", label: "المالية", icon: Wallet },
+  { key: "decisions", label: "معمل القرار", icon: Scale },
+  { key: "webstudio", label: "Ezz Web", icon: Globe },
+  { key: "social", label: "النشر الاجتماعي", icon: Share2 },
   { key: "tasks", label: "المهام", icon: CheckSquare },
   { key: "settings", label: "الإعدادات", icon: Settings },
 ]
@@ -129,7 +138,7 @@ export function AppShell({ me, onLogout }: { me: Me; onLogout: () => void }) {
             <Crosshair className="h-6 w-6 text-primary" />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-extrabold">LeadOS</p>
+            <p className="truncate text-sm font-extrabold">Ezz</p>
             <p className="truncate text-[11px] text-muted-foreground">{me.workspace.name}</p>
           </div>
         </div>
@@ -264,6 +273,10 @@ export function AppShell({ me, onLogout }: { me: Me; onLogout: () => void }) {
           {view === "browsers" && <BrowserControlView />}
           {view === "zizo" && <ZizoView />}
           {view === "analytics" && <AnalyticsView />}
+          {view === "finance" && <FinanceView />}
+          {view === "decisions" && <DecisionLabView />}
+          {view === "webstudio" && <WebStudioView />}
+          {view === "social" && <SocialView />}
           {view === "tasks" && <TasksView onOpenLead={openLead} />}
           {view === "settings" && <SettingsView me={me} />}
         </main>

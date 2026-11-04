@@ -23,7 +23,7 @@ export default function Page() {
         <div className="flex h-16 w-16 animate-pulse items-center justify-center rounded-2xl border border-primary/30 bg-primary/15">
           <Crosshair className="h-9 w-9 text-primary" />
         </div>
-        <p className="text-sm text-muted-foreground">جارٍ تحضير LeadOS...</p>
+        <p className="text-sm text-muted-foreground">جارٍ تحضير Ezz...</p>
       </div>
     )
   }

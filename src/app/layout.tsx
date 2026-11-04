@@ -3,7 +3,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: "LeadOS — منصة ذكاء العملاء المحتملين",
+  title: "Ezz — منصة ذكاء العملاء المحتملين (LeadOS Core)",
   description:
     "منصة ذكية لتوليد وإدارة العملاء المحتملين 24/7: اكتشاف آلي، تصنيف بالذكاء الاصطناعي، بحث عميق، CRM، وتحليلات.",
   keywords: ["Lead Intelligence", "CRM", "AI", "Leads", "اكتشاف عملاء", "ذكاء اصطناعي"],

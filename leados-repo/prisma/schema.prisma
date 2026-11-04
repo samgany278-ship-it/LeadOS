@@ -1,0 +1,30 @@
+// AI Lead Intelligence Platform — LeadOS
+// SQLite-compatible schema (dev/sandbox). 
+// Production schema (PostgreSQL for Neon/Vercel): prisma/schema.production.prisma
+// Transformations vs production: enums->String, String[]->Json, Decimal->Float
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String?
+  role         String   @default("AGENT") // UserRole
+  timezone     String   @default("Africa/Cairo")
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships   WorkspaceMember[]
+  assignedLeads Lead[]            @relation("LeadAssignee")
+  createdLeads  Lead[]            @relation("LeadCreator")
+  activities    Activity[]
+  tasks         Task[]

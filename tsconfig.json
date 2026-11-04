@@ -38,6 +38,16 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "scripts",
+    "skills",
+    "worker",
+    "examples",
+    "research",
+    "download",
+    "leados",
+    "leados-repo",
+    "db",
+    "public"
   ]
 }

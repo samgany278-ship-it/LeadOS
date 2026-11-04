@@ -3,7 +3,7 @@
 # ليه؟ لأن reset البيئة بيتمسح كل جوا /home/z/my-project — الخارجي بس بيتنجى
 # التشغيل: (setsid bash scripts/external-backup-loop.sh > /dev/null 2>&1 &)
 SAFE_DIR="/home/z/leados-backups"
-cd /home/z/my-project || exit 1
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 mkdir -p "$SAFE_DIR"
 
 while true; do

@@ -270,7 +270,7 @@ interface WebSearchResult {
   displayedLink?: string
 }
 
-type SearchProvider = "serper" | "exa" | "zenrows" | "bing" | "tavily" | "serpapi" | "searxng" | "zai"
+type SearchProvider = "serper" | "jina" | "exa" | "zenrows" | "bing" | "tavily" | "serpapi" | "searxng" | "zai"
 
 let preferredProvider: SearchProvider | null = null
 
@@ -353,6 +353,48 @@ async function searchSerper(query: string, limit: number, recencyDays: number): 
     const msg = err instanceof Error ? err.message : String(err)
     // الكريدت خلص = موت شبه دائم — كاش 6 ساعات عشان ميتأخرش على السلسلة كل استعلام
     if (msg.includes("HTTP 400") || msg.includes("HTTP 402") || msg.includes("HTTP 403")) noteProviderDead("serper", 6)
+    throw err
+  }
+}
+
+// --- Jina Search (s.jina.ai — المفتاح الرابع: بحث ويب حقيقي بدون Serper/Tavily/SerpAPI/Exa) ---
+// بحث جوجل-مثل عبر Jina: نتايج بعناوين/روابط/وصف — مفتاح واحد يرفع الكوتة (بدونه الكوتة محدودة جدًا)
+async function searchJina(query: string, limit: number, recencyDays: number): Promise<WebSearchResult[]> {
+  const key = process.env.JINA_API_KEY
+  if (!key) throw new Error("no key")
+  if (isProviderDead("jina")) throw new Error("jina dead-cache")
+  void recencyDays // s.jina.ai ملهوش فلتر زمني مباشر — الترتيب التواريخي بيعمله جواها
+  const body = { q: query, num: Math.min(limit, 20) } as Record<string, unknown>
+  try {
+    const data = (await fetchJson("https://s.jina.ai/", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "X-Respond-With": "no-content",
+      },
+      body: JSON.stringify(body),
+    }, 15000)) as {
+      data?: Array<{ title?: string; url?: string; description?: string; date_published?: string; metadata?: { url?: string } }>
+    }
+    const rows = data.data ?? []
+    return rows
+      .filter((r) => r.url)
+      .slice(0, limit)
+      .map((r, i) => ({
+        url: r.url!,
+        name: r.title ?? "",
+        snippet: r.description ?? "",
+        host_name: hostnameOf(r.url!),
+        date: r.date_published,
+        rank: i + 1,
+      }))
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    // كوتة/معدل → موت قصير 10 دقايق؛ مفتاح باطل/خلص → موت طويل 6 ساعات
+    if (msg.includes("HTTP 429") || msg.includes("HTTP 432")) noteProviderDead("jina", 0.17)
+    if (msg.includes("HTTP 401") || msg.includes("HTTP 402") || msg.includes("HTTP 403")) noteProviderDead("jina", 6)
     throw err
   }
 }
@@ -523,6 +565,8 @@ async function searchSearx(query: string, limit: number, recencyDays: number): P
 
 const PROVIDER_ORDER: Array<{ name: SearchProvider; run: (q: string, l: number, r: number) => Promise<WebSearchResult[]> }> = [
   { name: "serper", run: searchSerper },
+  // jina (المفتاح الرابع): أول مزود بحث حي فعلي في السلسلة — بحث ويب كامل بدون مفاتيح مزودات مدفوعة
+  { name: "jina", run: (q, l, r) => searchJina(q, l, r) },
   // exa الأول بعد serper: حي + بيفهم site: بفلتر includeDomains — ده محرك المنصات الأساسي دلوقتي
   { name: "exa", run: (q, l) => searchExa(q, l) },
   // zenrows→Bing: كريدت 1/طلب، 3 مفاتيح دوران + ميزانية يومية — تغطية ويب عامة (مهم للصيغ من غير site:)
@@ -567,13 +611,33 @@ export async function rawWebSearch(query: string, limit: number, recencyDays: nu
   return { results: [], provider: "none" }
 }
 
+/** اشتقاق عنوان من الرابط لما مزود البحث يرجّع العنوان فاضي (z-ai بيرجع روابط حقيقية بلا اسم —
+ *  سلاج الرابط غالبًا هو العنوان نفسه: /comments/<id>/<عنوان> أو /project/1234-<عنوان>) */
+function titleFromUrl(url: string): string {
+  try {
+    const u = new URL(url)
+    const reserved = /^(comments|project|groups|pages|people|events|watch|status|photo|video|s|in|pub|company|posts|pulse|r|p|c|d|thread|join|invite|channel)$/i
+    const segs = u.pathname.split("/").filter(Boolean)
+    for (let i = segs.length - 1; i >= 0 && i >= segs.length - 2; i--) {
+      const seg = decodeURIComponent(segs[i] ?? "")
+      if (/^\d+$/.test(seg)) continue // معرف رقمي صافي — مش عنوان
+      if (!/[a-zA-Z\u0600-\u06FF]{4}/.test(seg)) continue
+      if (reserved.test(seg)) continue
+      return seg.replace(/[-_+]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 90)
+    }
+    return ""
+  } catch {
+    return ""
+  }
+}
+
 function toItem(
   r: WebSearchResult,
   opts: { contentType: string; platform: string; query: string; recencyDays: number; provider?: string },
 ): DiscoveredItem {
   return {
     externalId: `ws:${hashId(r.url)}`,
-    title: r.name,
+    title: (r.name ?? "").trim() || titleFromUrl(r.url),
     body: r.snippet,
     url: r.url,
     contentType: opts.contentType,

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Pull production env (decrypted) from Vercel and store DATABASE_URL locally.
 set -euo pipefail
-cd /home/z/my-project
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 TOKEN="$(cat ~/.vercel_token)"
 PROJ="prj_Kv9czxsvv3z84XE2JEaE1UsgtGN4"
 TEAM="team_Q4xSgDiSXcvJeBFB0BvdZnNY"

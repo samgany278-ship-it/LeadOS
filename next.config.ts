@@ -10,7 +10,8 @@ const nextConfig: NextConfig = {
   },
   /* config options here */
   typescript: {
-    ignoreBuildErrors: true,
+    // T-019: الصفر أخطاء في src/ — التحقق مفعّل أثناء البناء (كان ignoreBuildErrors: true)
+    ignoreBuildErrors: false,
   },
   reactStrictMode: false,
   experimental: {

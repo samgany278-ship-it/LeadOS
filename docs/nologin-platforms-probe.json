@@ -1,0 +1,87 @@
+{
+ "timestamp": "2026-11-04T01:58:43Z",
+ "platforms": {
+  "REDDIT_JSON_API": {
+   "status": 403,
+   "posts": [],
+   "note": "المجاني الأول — 403 متوقع من IP مركز بيانات (موثق)، الفولباك بحث"
+  },
+  "TELEGRAM_TME_S": {
+   "channels": {
+    "egyptbusiness": {
+     "status": 200,
+     "posts_found": 5,
+     "sample_views": [
+      "16",
+      "41",
+      "7"
+     ],
+     "sample": "Channel created"
+    },
+    "AlBorsaNews": {
+     "status": 200,
+     "posts_found": 20,
+     "sample_views": [
+      "852",
+      "327",
+      "342"
+     ],
+     "sample": "كندا تشهد أعلى مبيعات للمنازل في شهر أغسطس منذ أربع سنوات  أعلنت جمعية العقارات الكندية أنها سجلت أعلى مبيعات للمنازل في"
+    },
+    "AlmalNews": {
+     "status": 200,
+     "posts_found": 11,
+     "sample_views": [
+      "18",
+      "38",
+      "27"
+     ],
+     "sample": "Вот так работают поворотники на некоторых версиях автомобилей Mini. Многие считают, что такие сигналы сбивают с толку, а"
+    },
+    "AkhbarEconomy": {
+     "status": 200,
+     "posts_found": 20,
+     "sample_views": [
+      "4.9K",
+      "2.96K",
+      "3.36K"
+     ],
+     "sample": "پزشکیان: اگر لازم باشد برق اتاق خودم رو قطع می‌کنم اما نمی‌گذارم چرخه تولید بخوابد  رئیس‌جمهور در جلسه تقویت معیشت مردم:"
+    },
+    "BusinessEgypt": {
+     "status": 200,
+     "posts_found": 4,
+     "sample_views": [
+      "22",
+      "28",
+      "20"
+     ],
+     "sample": "Channel created"
+    },
+    "marketing_egypt": {
+     "status": 200,
+     "posts_found": 9,
+     "sample_views": [
+      "35",
+      "88",
+      "91"
+     ],
+     "sample": "ترنج ليون الجديد   💫    قطن 80%   معالج ضد الانكماش والوبره  مقاس L  تلبيس من 55 - 65 كيلو مقاس XL تلبيس من 65 - 80 كيلو"
+    }
+   },
+   "note": "قنوات عامة بدون أي مفاتيح"
+  },
+  "QUORA_SITE": {
+   "status": 403,
+   "bytes": 0
+  },
+  "DISCORD_INVITE": {
+   "status": 200,
+   "bytes": 170299
+  },
+  "YOUTUBE_PUBLIC": {
+   "status": 200,
+   "bytes": 1161668
+  }
+ }
+}

@@ -2,7 +2,7 @@
 # LeadOS — periodic DB backup loop (every 30 minutes)
 # Started alongside the dev server; dies on restart (the "dev" script
 # re-runs a startup backup anyway, so nothing is lost).
-cd /home/z/my-project || exit 1
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 mkdir -p db/backups
 while true; do
   sleep 1800

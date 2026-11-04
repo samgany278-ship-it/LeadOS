@@ -16,9 +16,35 @@
 //   §14 checkpoint قبل أي عملية طويلة — فقدان المتصفح لا يعيد المهمة من الصفر
 //   §34 لا تجاوز CAPTCHA/MFA/ban — عند الحظر: BACKOFF → تقرير صريح
 import { chromium } from "playwright"
-import { writeFileSync, mkdtempSync } from "node:fs"
+import { writeFileSync, mkdtempSync, mkdirSync, appendFileSync } from "node:fs"
 import { tmpdir } from "node:os"
-import { join } from "node:path"
+import { join, dirname } from "node:path"
+import { fileURLToPath } from "node:url"
+
+// ═══ اسكرينات الإثبات (طلب المالك: «أي منصة اشتغلت بنجاح من المتصفح تاخد اسكرينات مثبتة») ═══
+// كل جوبة ناجحة → صورة JPEG في public/proof/<platform>/ + سطر في manifest.jsonl
+// الصورة تتسجل في نتيجة الجوبة نفسها (data.proof) — متاحة عبر /proof/<platform>/<file>
+const PROOF_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "public", "proof")
+async function captureProof(page, platform, task, jobId) {
+  try {
+    const dir = join(PROOF_ROOT, platform.toLowerCase())
+    mkdirSync(dir, { recursive: true })
+    const file = `${task.toLowerCase()}-${String(jobId).slice(-8)}-${Date.now()}.jpg`
+    await page.screenshot({ path: join(dir, file), type: "jpeg", quality: 72, timeout: 15_000 })
+    const publicPath = `/proof/${platform.toLowerCase()}/${file}`
+    try {
+      appendFileSync(
+        join(PROOF_ROOT, "manifest.jsonl"),
+        JSON.stringify({ ts: new Date().toISOString(), platform, task, jobId, pageUrl: page.url(), proof: publicPath }) + "\n",
+      )
+    } catch { /* الmanifest best-effort */ }
+    log(`📸 إثبات: ${publicPath}`)
+    return publicPath
+  } catch (e) {
+    log(`⚠️ screenshot فشل (مش هيوقف الجوبة): ${String(e?.message || e).slice(0, 90)}`)
+    return null
+  }
+}
 
 const BASE = (process.env.LEADOS_BASE_URL || "http://localhost:3000").replace(/\/$/, "")
 const SECRET = process.env.LEADOS_RUNNER_SECRET || ""
@@ -247,6 +273,7 @@ async function main() {
           data.posts = posts
           data.status = "OK"
           note = `${posts.length} منشور مستخرج`
+          data.proof = await captureProof(page, platform, job.task, job.id) // 📸 إثبات بصري
         }
       } else if (job.task === "PUBLIC_FETCH") {
         const url = String(job.payload.url || "")
@@ -264,6 +291,7 @@ async function main() {
           data.via = "browser"
           note = ok ? `${text.length} حرف` : "محتوى غير كافٍ"
           if (!ok) note += " — fallback Jina ممكن عبر القارئ الموحد لاحقًا (§28)"
+          if (ok) data.proof = await captureProof(page, platform, job.task, job.id) // 📸 إثبات بصري
         }
       } else {
         ok = false

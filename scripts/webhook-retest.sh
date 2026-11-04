@@ -1,6 +1,6 @@
 #!/bin/bash
 # إعادة اختبار Webhook بالحقل الصحيح name + تنظيف ليد الاختبار
-cd /home/z/my-project
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 OUT=tool-results/webhook-retest.txt
 > "$OUT"
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 # الاختبار الشامل عبر HTTP — أمر واحد مكتفي ذاتيًا
 # يشغل السيرفر → ينتظر → يختبر كل المسارات والميزات → يحفظ النتيجة في tool-results/system-check.txt
-cd /home/z/my-project
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 mkdir -p tool-results
 OUT=tool-results/system-check.txt
 > "$OUT"

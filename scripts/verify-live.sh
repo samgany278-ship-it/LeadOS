@@ -1,7 +1,7 @@
 #!/bin/bash
 # التحقق الحي الشامل — كل مميزات LeadOS على السيرفر العايش (:3000)
 # بدون تشغيل سيرفر جديد — النتيجة في tool-results/live-features.txt
-cd /home/z/my-project
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 mkdir -p tool-results
 OUT=tool-results/live-features.txt
 > "$OUT"

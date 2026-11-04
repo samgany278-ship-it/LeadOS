@@ -1,7 +1,7 @@
 #!/bin/bash
 # LeadOS — Ads Library supervisor: respawns the hunter loop if it ever dies.
 # Runs: python scraper every 2h (rotating query batches), guarded by flock.
-cd /home/z/my-project || exit 1
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 mkdir -p db/backups
 LOG=db/backups/adslib.log
 BATCHES=(

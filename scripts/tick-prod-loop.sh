@@ -2,7 +2,7 @@
 # LeadOS — production heartbeat: pings the Vercel orchestrator every 10 minutes
 # (the GitHub cron-tick is blocked at the account level — startup_failure since day 1;
 #  this local loop is the real 15-min cadence until the GitHub account is unblocked)
-cd /home/z/my-project || exit 1
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 mkdir -p db/backups
 SECRET=$(grep '^CRON_SECRET=' .env.local | cut -d= -f2- | tr -d '"')
 BASE="https://leados-olive.vercel.app"

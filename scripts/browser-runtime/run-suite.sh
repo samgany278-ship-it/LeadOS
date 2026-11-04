@@ -2,7 +2,7 @@
 # LeadOS — Browser Runtime Suite Runner (e2e + live runner في جلسة واحدة)
 # البيئة تقتل الـbackground processes بين الاستدعاءات — لذلك: سيرفر + اختبارات في استدعاء واحد.
 set -u
-cd /home/z/my-project
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 SECRET=$(grep '^CRON_SECRET=' .env.local | cut -d= -f2)
 export LEADOS_RUNNER_SECRET="$SECRET"
