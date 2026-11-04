@@ -24,3 +24,11 @@
 - **Kernel:** `ezz22551/leados-no-login-wave` (خاص) — v1 فشلت (DNS+dataset)، v2 تشخيصية اكتملت: **إنترنت الـKernel مقفول — Kaggle بيطلب Phone Verification** من إعدادات الحساب.
 - **النتيجة:** من غير تأكيد الهاتف، Kaggle يفضل في دوره الموثق: **الاستخراج/النسخ الاحتياطي** (leados-main). الموجات الحية على المنصات بدون تسجيل دخول بتشتغل من GitHub/البيئة الحية.
 - **المطلوب من المالك (اختياري):** تأكيد رقم الهاتف في kaggle.com/settings → الـKernel يشتغل فورًا (السكريبت جاهز: اختبارات 21/21 + موجة حية).
+
+## 2026-11-04 (4) — Kaggle كمعدة أصلية: فحص الحسابات الثمانية + إقلاع أوفلاين ناجح (BOOT_OK)
+
+- **الحسابات:** كل الـ8 توكنز (KGAT) شغالة على الـAPI (8/8 HTTP 200) والأسماء اتربطت: ezz22551، ezzhxcvdbd، samgany، scdsxzawdsw، ezzhazem2، sfsw1111، egyptmedia، hossamaldienhazem.
+- **فحص الإنترنت حساب-حساب:** نواة `leados-boot` اتدفعت لكل حساب — **8/8 بتشتغل من غير إنترنت** (BOOT_FAIL_CLONE: `Could not resolve host: github.com`) رغم `enable_internet: true` — تأكيد نهائي: Kaggle مقفول لحد Phone Verification على الحساب نفسه.
+- **المسار الجديد (أوفلاين):** dataset خاصة `samgany/leados-source` (لقطة المستودع + `verify.bundle.mjs` مبني بـ `bun build --target=node` وبيشتغل على Node 22 الخام) + نواة `samgany/leados-boot` v3 (dataset_sources، بلا إنترنت).
+- **النتيجة المسجلة (§38):** `BOOT_OK` — unzip ✓ + فحص بنيوي ✓ + **اختبارات القبول §20.11: 21/21 ✓ على كاجل** (Node 22.23.4، بدون شبكة وبدون تبعيات). ملفات الدليل: `boot_summary.json` و`boot_log.txt` (خارج الريبو).
+- **الخلاصة:** كاجل بقى معدة أصلية رسمية للتحقق الأوفلاين (كل إصدار جديد = بناء bundle + تحديث dataset + دفع النواة). الموجات الحية من كاجل محتاجة خطوة واحدة من المالك: تأكيد الهاتف لأي حساب واحد من الثمانية.
