@@ -189,6 +189,95 @@ export const serpApiProvider: SearchProvider = {
 };
 
 // ---------------------------------------------------------------------------
+// ZenRows→Bing — §13: «ZenRows — سكراب SERP بديل بعد موت Serper (3 مفاتيح،
+// 1000 كريدت/شهر لكل مفتاح، 1 كريدت/بحث Bing)» — mkt=en-US إجباري،
+// Bing من سيرفرات DC بيتعمله TLS soft-block وZenRows بيحل المسار ده.
+// المفاتيح في ZENROWS_API_KEYS (CSV) — دوران بينها لتوزيع الحصة (ملحق E).
+// ---------------------------------------------------------------------------
+
+const ZENROWS_ENDPOINT = 'https://api.zenrows.com/v1/';
+let zenrowsKeyCursor = 0;
+
+function zenrowsKeys(): string[] {
+  return (process.env.ZENROWS_API_KEYS ?? '')
+    .split(',').map((k) => k.trim()).filter((k) => k.length > 0);
+}
+
+/** لينكات Bing الملفوفة /ck/a?u=a1<base64url> بتتفك لرابط المصدر الحقيقي */
+function decodeBingRedirect(url: string): string {
+  try {
+    const u = new URL(url);
+    if (u.hostname === 'www.bing.com' && u.pathname === '/ck/a') {
+      const raw = u.searchParams.get('u') ?? '';
+      if (raw.startsWith('a1')) {
+        const b64 = raw.slice(2).replace(/-/g, '+').replace(/_/g, '/');
+        const decoded = Buffer.from(b64, 'base64').toString('utf8');
+        if (/^https?:\/\//.test(decoded)) return decoded;
+      }
+    }
+  } catch { /* الرابط الأصلي زي ما هو */ }
+  return url;
+}
+
+function stripTags(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function parseBingHtml(html: string, limit: number): RawHit[] {
+  const hits: RawHit[] = [];
+  const blocks = html.split('<li class="b_algo');
+  for (let i = 1; i < blocks.length && hits.length < limit; i++) {
+    const block = blocks[i].slice(0, 4000);
+    const linkMatch = block.match(/<h2[^>]*>\s*<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i)
+      ?? block.match(/<a[^>]+href="(https?:\/\/[^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
+    if (!linkMatch) continue;
+    const url = decodeBingRedirect(linkMatch[1].replace(/&amp;/g, '&'));
+    if (!/^https?:\/\//.test(url)) continue;
+    const title = stripTags(linkMatch[2]) || null;
+    const pMatch = block.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
+    const snippet = pMatch ? stripTags(pMatch[1]).slice(0, 500) : null;
+    // §20.11-4: التاريخ مش متوفر من Bing HTML → null مش تخمين
+    hits.push({ title, url, snippet, publishedAt: null, provider: 'zenrows-bing' });
+  }
+  return hits;
+}
+
+export const zenrowsBingProvider: SearchProvider = {
+  name: 'zenrows-bing',
+  isConfigured: () => zenrowsKeys().length > 0,
+  async search(req) {
+    const keys = zenrowsKeys();
+    if (keys.length === 0) throw new Error('ZENROWS_API_KEYS غير مضبوط');
+    // Bing بيدعم site: أصليًا — نفس المراتب الثلاثة زي SerpAPI (§4)
+    const tiers = buildTierQueries(req.domains, req.query);
+    let lastErr: unknown = null;
+    for (const tierQuery of tiers) {
+      const bingUrl = `https://www.bing.com/search?q=${encodeURIComponent(tierQuery + geoPinSuffix(req.query))}&mkt=en-US&count=${Math.min(req.limit, 20)}`; // mkt=en-US إجباري (§13)
+      for (let k = 0; k < keys.length; k++) {
+        const idx = (zenrowsKeyCursor + k) % keys.length;
+        try {
+          const res = await fetch(`${ZENROWS_ENDPOINT}?apikey=${encodeURIComponent(keys[idx])}&url=${encodeURIComponent(bingUrl)}`, { signal: AbortSignal.timeout(25_000) });
+          if (!res.ok) throw new Error(`HTTP ${res.status} من ZenRows (مفتاح رقم ${idx + 1})`);
+          zenrowsKeyCursor = (idx + 1) % keys.length; // دوران لتوزيع الحصة
+          const hits = parseBingHtml(await res.text(), req.limit)
+            .filter((r) => matchesSite(r.url, req.domains)); // tier3: بحث عام يتبعه فلتر
+          if (hits.length > 0) return hits;
+          break; // الطلب نجح لكن صفر نتايج → جرب المراتب التانية
+        } catch (e) { lastErr = e; } // مفتاح فاشل → التالي (ملحق G-7: بديل مش retry لا نهائي)
+      }
+    }
+    if (lastErr) throw lastErr;
+    return [];
+  },
+};
+
+// ---------------------------------------------------------------------------
 // السلسلة — §13: فشل مزود يفعّل البديل المسموح، لا retry بلا نهاية (ملحق G-7)
 // z-ai: SDK مدمج في المشروع (§13) — يستضيفه التطبيق عبر setCustomProvider
 // ---------------------------------------------------------------------------
@@ -203,7 +292,7 @@ export function setCustomProvider(p: SearchProvider | null): void {
 function defaultChain(): SearchProvider[] {
   const list: SearchProvider[] = [];
   if (customProvider) list.push(customProvider); // z-ai أولًا إن كان محقونًا
-  list.push(exaProvider, tavilyProvider, serpApiProvider); // §13: Exa أساسي ثم البدائل
+  list.push(exaProvider, tavilyProvider, serpApiProvider, zenrowsBingProvider); // §13: Exa أساسي ثم البدائل ثم ZenRows→Bing احتياطي
   return list;
 }
 
